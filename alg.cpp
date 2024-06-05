@@ -1,4 +1,5 @@
 #include "alg.hpp"
+#include <iostream>
 
 using namespace std;
 
@@ -262,7 +263,7 @@ bool compare(vec2 p1, vec2 q1) {
 
     if (one != two)
         return (one < two);
-    return (p.y * q.x > q.y * p.x);
+    return (p.y * q.x < q.y * p.x);
 }
 
 // Checks the orientation of the triplet (a, b, c)
@@ -281,6 +282,14 @@ int check_ori(vec2 a, vec2 b, vec2 c) {
 
 vector<vec2> subproblem_jar(vector<vec2>* points) {
     vector<vec2> res{};
+
+    cout << "Subproblem was called to the following subset: " << endl;
+
+    for (size_t i = 0; i < points->size(); i++) {
+        cout << points->at(i) << " ";
+    }
+
+    cout << endl;
 
     //First Step -> Find P0
     quickSortVec2x(points);
@@ -345,15 +354,18 @@ vector<vec2> subproblem_jar(vector<vec2>* points) {
     for (int i = 0; i < n; i++) {
         mid.x += res[i].x;
         mid.y += res[i].y;
-        res[i].x *= n;
-        res[i].y *= n;
     }
+    mid.x = mid.x / n;
+    mid.y = mid.y / n;
+    //Now we have the centroid!
     sort(res.begin(), res.end(), compare);
-    for (int i = 0; i < n; i++)
-        res[i] = { res[i].x / n, res[i].y / n };
 
+    cout << "Poligono Sub Problema Ordenado em sentido CCW:" << endl;
 
-    res.push_back(res.at(0));
+    for (size_t i = 0; i < res.size(); i++) {
+        cout << res.at(i) << endl;
+    }
+
     return res;
 }
 
@@ -387,6 +399,9 @@ vector<vec2> mergeHullMerger(vector<vec2> a, vector<vec2> b) {
     }
 
     int uppera = inda, upperb = indb;
+
+    cout << "Upper Tangent: " << "Up_Left: " << a.at(uppera) << " | Up_Right: " << b.at(upperb) << endl;
+
     inda = ia, indb = ib;
     done = 0;
     while (!done) { // finding the lower tangent
@@ -401,6 +416,9 @@ vector<vec2> mergeHullMerger(vector<vec2> a, vector<vec2> b) {
     }
 
     int lowera = inda, lowerb = indb;
+    
+    cout << "Lower Tangent: " << "Lower_Left: " << a.at(lowera) << " | Lower_Right: " << b.at(lowerb) << endl;
+    
     vector<vec2> ret;
 
     // ret contains the convex hull after merging the two convex hulls
@@ -427,9 +445,7 @@ vector<vec2> mergeHullDivide(vector<vec2> a) {
     // function uses the jarvis algorithm to find the
     // convex hull
     if (a.size() <= 5) {
-        vector<vec2> res = subproblem_jar(&a);
-        res.erase(res.end() - 1);
-        return res;
+        return subproblem_jar(&a);
     }
 
     // left contains the left half points
@@ -452,6 +468,14 @@ vector<vec2> mergeHull(vector<vec2> points) {
 
     //First, we need to sort according to the x-axis
     quickSortVec2x(&points);
+
+    cout << "InputPoints have already sorted according to the x-asis:" << endl;
+
+    for (size_t i = 0; i < points.size(); i++) {
+        cout << points.at(i) << " ";
+    }
+
+    cout << endl;
 
     //Do the Magic!
     vector<vec2> res = mergeHullDivide(points);
