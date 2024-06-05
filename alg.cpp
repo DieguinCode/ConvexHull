@@ -283,14 +283,6 @@ int check_ori(vec2 a, vec2 b, vec2 c) {
 vector<vec2> subproblem_jar(vector<vec2>* points) {
     vector<vec2> res{};
 
-    cout << "Subproblem was called to the following subset: " << endl;
-
-    for (size_t i = 0; i < points->size(); i++) {
-        cout << points->at(i) << " ";
-    }
-
-    cout << endl;
-
     //First Step -> Find P0
     quickSortVec2x(points);
 
@@ -360,12 +352,6 @@ vector<vec2> subproblem_jar(vector<vec2>* points) {
     //Now we have the centroid!
     sort(res.begin(), res.end(), compare);
 
-    cout << "Poligono Sub Problema Ordenado em sentido CCW:" << endl;
-
-    for (size_t i = 0; i < res.size(); i++) {
-        cout << res.at(i) << endl;
-    }
-
     return res;
 }
 
@@ -400,8 +386,6 @@ vector<vec2> mergeHullMerger(vector<vec2> a, vector<vec2> b) {
 
     int uppera = inda, upperb = indb;
 
-    cout << "Upper Tangent: " << "Up_Left: " << a.at(uppera) << " | Up_Right: " << b.at(upperb) << endl;
-
     inda = ia, indb = ib;
     done = 0;
     while (!done) { // finding the lower tangent
@@ -416,9 +400,7 @@ vector<vec2> mergeHullMerger(vector<vec2> a, vector<vec2> b) {
     }
 
     int lowera = inda, lowerb = indb;
-    
-    cout << "Lower Tangent: " << "Lower_Left: " << a.at(lowera) << " | Lower_Right: " << b.at(lowerb) << endl;
-    
+
     vector<vec2> ret;
 
     // ret contains the convex hull after merging the two convex hulls
@@ -468,14 +450,6 @@ vector<vec2> mergeHull(vector<vec2> points) {
 
     //First, we need to sort according to the x-axis
     quickSortVec2x(&points);
-
-    cout << "InputPoints have already sorted according to the x-asis:" << endl;
-
-    for (size_t i = 0; i < points.size(); i++) {
-        cout << points.at(i) << " ";
-    }
-
-    cout << endl;
 
     //Do the Magic!
     vector<vec2> res = mergeHullDivide(points);
