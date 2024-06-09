@@ -8,6 +8,7 @@
 #include <cstdlib> // Para a função rand()
 #include <ctime>   // Para a função time()
 #include "alg.hpp"
+#include "objutils.hpp"
 #include <random>
 
 using namespace std;
@@ -129,6 +130,43 @@ static vector<vec2> gerarPontosAleatorios(int n, int min_val, int max_val) {
     return pontos;
 }
 
+static void temaMergeHull() {
+    Mesh* mesh = ObjUtils::loadMesh("onix.obj");
+	Mesh* convexedMesh = new Mesh();
+
+	unsigned int vertexCounter = 0; //global vertex counter
+	for (MeshObject* meshObject : mesh->objects) {
+
+		//deconstruct each "object", just get all the points
+		vector<vec2>* points = new vector<vec2>();
+		for (unsigned int index : meshObject->vertexIndices) {
+			points->push_back(mesh->vertices.at(index));
+		}
+
+		//do the method
+		vector<vec2> convexHull = mergeHull(*points);
+        //vector<vec2> convexHull = jarvis(points);
+
+		//reconstruct a single face with all the points
+		MeshObject* newObject = new MeshObject();
+		newObject->name = meshObject->name;
+		MeshFace* newFace = new MeshFace();
+		newObject->faces.push_back(newFace);
+
+		for (vec2 point : convexHull) {
+			convexedMesh->vertices.push_back(point);
+			newObject->vertexIndices.push_back(vertexCounter);
+			newFace->vertexIndices.push_back(vertexCounter);
+			vertexCounter += 1; //global vertex counter
+		}
+
+		//save each individual object
+		convexedMesh->objects.push_back(newObject);
+	}
+
+    ObjUtils::saveMesh(convexedMesh, "onix_export_mergehull.obj");
+}
+
 // Vertex Shader Source
 const char* vertexShaderSource = R"(
 #version 330 core
@@ -194,12 +232,14 @@ int main() {
     //srand(static_cast<unsigned>(time(0))); // Inicializa o gerador de números aleatórios
     //std::vector<vec2> inputPoints = gerarPontosAleatorios(20, -50, 50);
 
+    temaMergeHull();
+
     random_device rd;
     mt19937 gen(rd());
     uniform_real_distribution<> dis(-5.0, 5.0);
 
     vector<vec2> inputPoints = vector<vec2>();
-    int iterationSize = 100; //100 or 1000
+    int iterationSize = 10; //100 or 1000
     int pointCount = 0;
     for (int i = 0; i < iterationSize; i++) {
         inputPoints.push_back(vec2((dis(gen)), (dis(gen))));
@@ -208,6 +248,7 @@ int main() {
     }
 
     // Call the magic!
+    //std::vector<vec2> convexHull = jarvis(&inputPoints);
     std::vector<vec2> convexHull = mergeHull(inputPoints);
     
     //I would like to see at a terminal too
